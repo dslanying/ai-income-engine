@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Content - AI Income Engine</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif; color: #1e1b4b; background: #f8f7ff; line-height: 1.6; }
+        a { text-decoration: none; color: inherit; }
+
+        .navbar { background: #fff; border-bottom: 1px solid #e9e5ff; padding: 0.75rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .navbar .logo { font-size: 1.25rem; font-weight: 800; color: #7c3aed; }
+        .navbar .logo span { color: #1e1b4b; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: #4c4270; font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+        .nav-links a:hover { color: #7c3aed; }
+        .btn-nav { background: #7c3aed; color: #fff !important; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; }
+        .btn-nav:hover { background: #6d28d9; }
+
+        .generate-container { max-width: 650px; margin: 0 auto; padding: 3rem 2rem; }
+        .generate-header { margin-bottom: 2rem; }
+        .generate-header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.25rem; }
+        .generate-header p { color: #6b7280; }
+
+        .generate-form { background: #fff; border: 1px solid #e9e5ff; border-radius: 16px; padding: 2.5rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.5rem; color: #374151; }
+        .form-group select,
+        .form-group input[type="text"] { width: 100%; padding: 0.85rem 1rem; border: 1px solid #d4d0e8; border-radius: 10px; font-size: 1rem; outline: none; transition: border-color 0.2s; background: #faf9ff; color: #1e1b4b; }
+        .form-group select:focus,
+        .form-group input[type="text"]:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+        .form-hint { font-size: 0.85rem; color: #9ca3af; margin-top: 0.35rem; }
+
+        .btn-generate { width: 100%; padding: 1rem; background: #7c3aed; color: #fff; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+        .btn-generate:hover { background: #6d28d9; }
+
+        .content-types-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 0.5rem; }
+        .type-card { padding: 0.75rem; background: #faf9ff; border: 1px solid #e9e5ff; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 0.85rem; font-weight: 500; }
+        .type-card:hover { border-color: #7c3aed; background: #ede9fe; }
+        .type-card.selected { border-color: #7c3aed; background: #ede9fe; color: #7c3aed; font-weight: 700; }
+
+        footer { background: #1e1b4b; color: rgba(255,255,255,0.7); text-align: center; padding: 2rem; font-size: 0.9rem; margin-top: 3rem; }
+
+        @media (max-width: 768px) {
+            .generate-container { padding: 1.5rem 1rem; }
+            .generate-header h1 { font-size: 1.5rem; }
+            .content-types-grid { grid-template-columns: repeat(2, 1fr); }
+            .generate-form { padding: 1.5rem; }
+            .navbar { padding: 0.75rem 1rem; }
+            .nav-links { gap: 0.75rem; }
+            .nav-links a { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">AI <span>Income Engine</span></a>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/generate">Generate</a>
+            <a href="/articles">Articles</a>
+            <a href="/logout">{{ user.username }}</a>
+        </div>
+    </nav>
+
+    <div class="generate-container">
+        <div class="generate-header">
+            <h1>Generate Content</h1>
+            <p>Choose a content type and enter your keyword to generate AI-powered content.</p>
+        </div>
+
+        <div class="generate-form">
+            <form method="POST" action="/generate" id="generateForm">
+                <div class="form-group">
+                    <label for="content_type">Content Type</label>
+                    <select id="content_type" name="content_type" required>
+                        <option value="blog">Blog Post</option>
+                        <option value="youtube">YouTube Script</option>
+                        <option value="twitter">Twitter / X Thread</option>
+                        <option value="linkedin">LinkedIn Post</option>
+                        <option value="amazon">Amazon Product Listing</option>
+                        <option value="etsy">Etsy Product Description</option>
+                        <option value="email">Email Marketing Sequence</option>
+                        <option value="affiliate_review">Affiliate Product Review</option>
+                        <option value="affiliate_comparison">Affiliate Comparison</option>
+                    </select>
+                    <p class="form-hint">Select the type of content you want to generate.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="keyword">Keyword / Topic</label>
+                    <input type="text" id="keyword" name="keyword" required placeholder="e.g., best productivity apps for remote workers" autocomplete="off">
+                    <p class="form-hint">Enter a keyword or topic for your content.</p>
+                </div>
+
+                <button type="submit" class="btn-generate">Generate Content</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 AI Income Engine. All rights reserved.
+    </footer>
+</body>
+</html>

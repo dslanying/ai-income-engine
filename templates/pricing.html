@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing - AI Income Engine</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif; color: #1e1b4b; background: #f8f7ff; line-height: 1.6; }
+        a { text-decoration: none; color: inherit; }
+
+        .navbar { background: #fff; border-bottom: 1px solid #e9e5ff; padding: 0.75rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .navbar .logo { font-size: 1.25rem; font-weight: 800; color: #7c3aed; }
+        .navbar .logo span { color: #1e1b4b; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: #4c4270; font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+        .nav-links a:hover { color: #7c3aed; }
+        .btn-nav { background: #7c3aed; color: #fff !important; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; }
+        .btn-nav:hover { background: #6d28d9; }
+
+        .pricing-header { text-align: center; padding: 4rem 2rem 2rem; }
+        .pricing-header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.75rem; }
+        .pricing-header p { color: #6b7280; font-size: 1.1rem; max-width: 550px; margin: 0 auto; }
+
+        .pricing-grid { max-width: 1050px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; align-items: start; }
+
+        .plan-card { background: #fff; border: 1px solid #e9e5ff; border-radius: 16px; padding: 2.5rem 2rem; text-align: center; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
+        .plan-card:hover { transform: translateY(-4px); box-shadow: 0 10px 40px rgba(124,58,237,0.12); }
+        .plan-card.popular { border: 2px solid #7c3aed; box-shadow: 0 8px 30px rgba(124,58,237,0.15); }
+        .popular-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #7c3aed; color: #fff; font-size: 0.8rem; font-weight: 700; padding: 0.25rem 1.25rem; border-radius: 999px; }
+
+        .plan-name { font-size: 1.2rem; font-weight: 700; color: #4c4270; margin-bottom: 0.5rem; }
+        .plan-price { font-size: 3rem; font-weight: 800; margin-bottom: 0.25rem; }
+        .plan-price .currency { font-size: 1.5rem; vertical-align: top; }
+        .plan-price .period { font-size: 1rem; font-weight: 400; color: #6b7280; }
+        .plan-desc { color: #6b7280; font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+        .plan-features { list-style: none; text-align: left; margin-bottom: 2rem; }
+        .plan-features li { padding: 0.4rem 0; font-size: 0.95rem; color: #374151; border-bottom: 1px solid #f3f0ff; }
+        .plan-features li:last-child { border-bottom: none; }
+        .plan-features li::before { content: "\2713"; color: #7c3aed; font-weight: 700; margin-right: 0.5rem; }
+
+        .btn-checkout { display: block; width: 100%; padding: 0.85rem; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }
+        .btn-checkout.primary { background: #7c3aed; color: #fff; }
+        .btn-checkout.primary:hover { background: #6d28d9; }
+        .btn-checkout.secondary { background: #ede9fe; color: #7c3aed; }
+        .btn-checkout.secondary:hover { background: #ddd6fe; }
+        .btn-checkout.disabled { background: #e9e5ff; color: #a78bfa; cursor: default; }
+
+        footer { background: #1e1b4b; color: rgba(255,255,255,0.7); text-align: center; padding: 2rem; font-size: 0.9rem; margin-top: 3rem; }
+
+        @media (max-width: 768px) {
+            .pricing-grid { grid-template-columns: 1fr; max-width: 400px; }
+            .pricing-header h1 { font-size: 1.8rem; }
+            .navbar { padding: 0.75rem 1rem; }
+            .nav-links { gap: 0.75rem; }
+            .nav-links a { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">AI <span>Income Engine</span></a>
+        <div class="nav-links">
+            {% if user %}
+            <a href="/dashboard">Dashboard</a>
+            <a href="/generate">Generate</a>
+            <a href="/articles">Articles</a>
+            <a href="/logout">{{ user.username }}</a>
+            {% else %}
+            <a href="/">Home</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/login" class="btn-nav">Login</a>
+            <a href="/register" class="btn-nav">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <section class="pricing-header">
+        <h1>Simple, Transparent Pricing</h1>
+        <p>Choose the plan that fits your content needs. Upgrade or downgrade anytime.</p>
+    </section>
+
+    <section class="pricing-grid">
+        <!-- Starter Plan -->
+        <div class="plan-card">
+            <div class="plan-name">Starter</div>
+            <div class="plan-price"><span class="currency">$</span>0<span class="period">/mo</span></div>
+            <div class="plan-desc">Perfect to get started</div>
+            <ul class="plan-features">
+                {% for feature in plans.free.features %}
+                <li>{{ feature }}</li>
+                {% endfor %}
+            </ul>
+            {% if user and user.plan == 'free' %}
+            <div class="btn-checkout disabled">Current Plan</div>
+            {% else %}
+            <a href="/register" class="btn-checkout secondary">Get Started Free</a>
+            {% endif %}
+        </div>
+
+        <!-- Creator Plan -->
+        <div class="plan-card popular">
+            <div class="popular-badge">Recommended</div>
+            <div class="plan-name">Creator</div>
+            <div class="plan-price"><span class="currency">$</span>12<span class="period">/mo</span></div>
+            <div class="plan-desc">For serious content creators</div>
+            <ul class="plan-features">
+                {% for feature in plans.creator.features %}
+                <li>{{ feature }}</li>
+                {% endfor %}
+            </ul>
+            {% if user and user.plan == 'creator' %}
+            <div class="btn-checkout disabled">Current Plan</div>
+            {% elif user %}
+            <form method="POST" action="/create-checkout-session">
+                <input type="hidden" name="plan" value="creator">
+                <button type="submit" class="btn-checkout primary">Checkout</button>
+            </form>
+            {% else %}
+            <a href="/register" class="btn-checkout primary">Get Started</a>
+            {% endif %}
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="plan-card">
+            <div class="plan-name">Pro</div>
+            <div class="plan-price"><span class="currency">$</span>29<span class="period">/mo</span></div>
+            <div class="plan-desc">Unlimited power & API access</div>
+            <ul class="plan-features">
+                {% for feature in plans.pro.features %}
+                <li>{{ feature }}</li>
+                {% endfor %}
+            </ul>
+            {% if user and user.plan == 'pro' %}
+            <div class="btn-checkout disabled">Current Plan</div>
+            {% elif user %}
+            <form method="POST" action="/create-checkout-session">
+                <input type="hidden" name="plan" value="pro">
+                <button type="submit" class="btn-checkout primary">Checkout</button>
+            </form>
+            {% else %}
+            <a href="/register" class="btn-checkout primary">Get Started</a>
+            {% endif %}
+        </div>
+    </section>
+
+    <footer>
+        &copy; 2026 AI Income Engine. All rights reserved.
+    </footer>
+</body>
+</html>

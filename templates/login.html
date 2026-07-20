@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AI Income Engine</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif; color: #1e1b4b; background: #f8f7ff; line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
+        a { text-decoration: none; color: inherit; }
+
+        .navbar { background: #fff; border-bottom: 1px solid #e9e5ff; padding: 0.75rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .navbar .logo { font-size: 1.25rem; font-weight: 800; color: #7c3aed; }
+        .navbar .logo span { color: #1e1b4b; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: #4c4270; font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+        .nav-links a:hover { color: #7c3aed; }
+        .btn-nav { background: #7c3aed; color: #fff !important; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; }
+        .btn-nav:hover { background: #6d28d9; }
+
+        .auth-container { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+        .auth-card { background: #fff; border: 1px solid #e9e5ff; border-radius: 16px; padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: 0 4px 20px rgba(124,58,237,0.08); }
+        .auth-card h1 { font-size: 1.75rem; font-weight: 800; text-align: center; margin-bottom: 0.5rem; }
+        .auth-card .subtitle { text-align: center; color: #6b7280; margin-bottom: 2rem; font-size: 0.95rem; }
+
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.4rem; color: #374151; }
+        .form-group input { width: 100%; padding: 0.75rem 1rem; border: 1px solid #d4d0e8; border-radius: 10px; font-size: 0.95rem; outline: none; transition: border-color 0.2s; background: #faf9ff; }
+        .form-group input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.15); }
+
+        .btn-submit { width: 100%; padding: 0.85rem; background: #7c3aed; color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+        .btn-submit:hover { background: #6d28d9; }
+
+        .auth-footer { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #6b7280; }
+        .auth-footer a { color: #7c3aed; font-weight: 600; }
+        .auth-footer a:hover { text-decoration: underline; }
+
+        .error-msg { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 0.75rem 1rem; border-radius: 10px; margin-bottom: 1.25rem; font-size: 0.9rem; text-align: center; }
+
+        footer { background: #1e1b4b; color: rgba(255,255,255,0.7); text-align: center; padding: 2rem; font-size: 0.9rem; }
+
+        @media (max-width: 768px) {
+            .navbar { padding: 0.75rem 1rem; }
+            .nav-links { gap: 0.75rem; }
+            .auth-card { padding: 1.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">AI <span>Income Engine</span></a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/pricing">Pricing</a>
+            <a href="/register" class="btn-nav">Register</a>
+        </div>
+    </nav>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>Welcome Back</h1>
+            <p class="subtitle">Sign in to your AI Income Engine account</p>
+
+            {% if error %}
+            <div class="error-msg">{{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="/login">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="btn-submit">Sign In</button>
+            </form>
+
+            <div class="auth-footer">
+                Don't have an account? <a href="/register">Create one free</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 AI Income Engine. All rights reserved.
+    </footer>
+</body>
+</html>

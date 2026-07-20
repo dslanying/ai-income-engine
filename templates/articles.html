@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Articles - AI Income Engine</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif; color: #1e1b4b; background: #f8f7ff; line-height: 1.6; }
+        a { text-decoration: none; color: inherit; }
+
+        .navbar { background: #fff; border-bottom: 1px solid #e9e5ff; padding: 0.75rem 2rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .navbar .logo { font-size: 1.25rem; font-weight: 800; color: #7c3aed; }
+        .navbar .logo span { color: #1e1b4b; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { color: #4c4270; font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+        .nav-links a:hover { color: #7c3aed; }
+        .btn-nav { background: #7c3aed; color: #fff !important; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; }
+        .btn-nav:hover { background: #6d28d9; }
+
+        .articles-container { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem; }
+        .articles-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .articles-header h1 { font-size: 2rem; font-weight: 800; }
+        .btn-new { background: #7c3aed; color: #fff; padding: 0.65rem 1.5rem; border-radius: 10px; font-weight: 700; font-size: 0.95rem; transition: background 0.2s; }
+        .btn-new:hover { background: #6d28d9; }
+
+        .empty-state { text-align: center; padding: 4rem 2rem; }
+        .empty-state .empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .empty-state h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .empty-state p { color: #6b7280; margin-bottom: 1.5rem; }
+
+        .article-list { display: flex; flex-direction: column; gap: 1rem; }
+        .article-item { background: #fff; border: 1px solid #e9e5ff; border-radius: 14px; padding: 1.5rem; transition: transform 0.2s, box-shadow 0.2s; display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
+        .article-item:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,58,237,0.1); }
+        .article-info { flex: 1; min-width: 250px; }
+        .article-info h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.35rem; }
+        .article-info h3 a { color: #7c3aed; }
+        .article-info h3 a:hover { text-decoration: underline; }
+        .article-meta { display: flex; gap: 1rem; font-size: 0.85rem; color: #9ca3af; flex-wrap: wrap; }
+        .article-meta span { display: flex; align-items: center; gap: 0.25rem; }
+        .article-badge { display: inline-block; background: #ede9fe; color: #7c3aed; font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.65rem; border-radius: 6px; }
+        .btn-view { background: #ede9fe; color: #7c3aed; padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap; }
+        .btn-view:hover { background: #ddd6fe; }
+
+        footer { background: #1e1b4b; color: rgba(255,255,255,0.7); text-align: center; padding: 2rem; font-size: 0.9rem; margin-top: 3rem; }
+
+        @media (max-width: 768px) {
+            .articles-container { padding: 1.5rem 1rem; }
+            .articles-header h1 { font-size: 1.5rem; }
+            .article-item { flex-direction: column; }
+            .navbar { padding: 0.75rem 1rem; }
+            .nav-links { gap: 0.75rem; }
+            .nav-links a { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="logo">AI <span>Income Engine</span></a>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/generate">Generate</a>
+            <a href="/articles">Articles</a>
+            <a href="/logout">{{ user.username }}</a>
+        </div>
+    </nav>
+
+    <div class="articles-container">
+        <div class="articles-header">
+            <h1>My Articles</h1>
+            <a href="/generate" class="btn-new">+ New Content</a>
+        </div>
+
+        {% if not articles %}
+        <div class="empty-state">
+            <div class="empty-icon">&#128196;</div>
+            <h2>No articles yet</h2>
+            <p>You haven't generated any content yet. Start by choosing a content type and entering a keyword.</p>
+            <a href="/generate" class="btn-new">Generate Your First Article</a>
+        </div>
+        {% else %}
+        <div class="article-list">
+            {% for article in articles %}
+            <div class="article-item">
+                <div class="article-info">
+                    <h3><a href="/articles/{{ article.id }}">{{ article.title }}</a></h3>
+                    <div class="article-meta">
+                        <span class="article-badge">{{ article.keyword }}</span>
+                        <span>{{ article.word_count }} words</span>
+                        <span>{{ article.created_at.strftime('%Y-%m-%d %H:%M') if article.created_at else 'N/A' }}</span>
+                    </div>
+                </div>
+                <a href="/articles/{{ article.id }}" class="btn-view">View</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <footer>
+        &copy; 2026 AI Income Engine. All rights reserved.
+    </footer>
+</body>
+</html>
