@@ -65,6 +65,7 @@ from fastapi import FastAPI, Request, Response, Form, Depends, HTTPException, st
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from jinja2 import Environment, FileSystemLoader
 from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
@@ -160,8 +161,11 @@ PLANS = {
 
 app = FastAPI(title="AI Income Engine", version="2.1.0")
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY, max_age=3600 * 24 * 7)
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+import os
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+if os.path.isdir(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
