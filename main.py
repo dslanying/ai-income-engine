@@ -165,7 +165,11 @@ import os
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 if os.path.isdir(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
-templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
+_env = Environment(
+    loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates")),
+    autoescape=True,
+)
+templates = Jinja2Templates(env=_env)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
