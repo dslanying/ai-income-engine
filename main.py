@@ -168,6 +168,7 @@ if os.path.isdir(static_dir):
 _env = Environment(
     loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), "templates")),
     autoescape=True,
+    cache_size=0,
 )
 templates = Jinja2Templates(env=_env)
 
