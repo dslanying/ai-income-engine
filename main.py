@@ -67,7 +67,7 @@ from fastapi.staticfiles import StaticFiles
 from jinja2 import Environment, FileSystemLoader
 from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.orm import Session
-from passlib.context import CryptContext
+import bcrypt
 from dotenv import load_dotenv
 
 from models import get_db, User, Article, SessionLocal
@@ -177,16 +177,13 @@ def render_template(request: Request, template_name: str, status_code: int = 200
     html = template.render(**context)
     return HTMLResponse(content=html, status_code=status_code)
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-
 # ===================== Helpers =====================
 
 def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
 
 def get_current_user(request: Request, db: Session = Depends(get_db)) -> Optional[User]:
     user_id = request.session.get("user_id")
