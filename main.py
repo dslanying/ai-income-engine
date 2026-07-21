@@ -64,7 +64,6 @@ from typing import Optional, List
 from fastapi import FastAPI, Request, Response, Form, Depends, HTTPException, status
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from jinja2 import Environment, FileSystemLoader
 from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.orm import Session
@@ -170,7 +169,13 @@ _env = Environment(
     autoescape=True,
     cache_size=0,
 )
-templates = Jinja2Templates(env=_env)
+# Custom template render to bypass Starlette Jinja2Templates bug
+def render_template(request: Request, template_name: str, status_code: int = 200, **context):
+    """Render a Jinja2 template with the given context and return HTMLResponse."""
+    context["request"] = request
+    template = _env.get_template(template_name)
+    html = template.render(**context)
+    return HTMLResponse(content=html, status_code=status_code)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -792,28 +797,20 @@ If you're just starting out, go with option #2 for the best value. If budget isn
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "user": user,
-        "plans": PLANS,
-    })
+    return render_template(request, "index.html", user=user, plans=PLANS)
 
 
 @app.get("/pricing", response_class=HTMLResponse)
 async def pricing(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
-    return templates.TemplateResponse("pricing.html", {
-        "request": request,
-        "user": user,
-        "plans": PLANS,
-    })
+    return render_template(request, "pricing.html", user=user, plans=PLANS)
 
 
 # ---------------- Auth Routes ----------------
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_page(request: Request, error: str = ""):
-    return templates.TemplateResponse("login.html", {"request": request, "error": error})
+    return render_template(request, "login.html", error=error)
 
 
 @app.post("/login")
@@ -826,10 +823,7 @@ async def login(
 ):
     user = db.query(User).filter(User.email == email).first()
     if not user or not verify_password(password, user.hashed_password):
-        return templates.TemplateResponse("login.html", {
-            "request": request,
-            "error": "Invalid email or password"
-        }, status_code=401)
+        return render_template(request, "login.html", error="Invalid email or password", status_code=401)
 
     request.session["user_id"] = user.id
     return RedirectResponse(url="/dashboard", status_code=status.HTTP_302_FOUND)
@@ -837,7 +831,7 @@ async def login(
 
 @app.get("/register", response_class=HTMLResponse)
 async def register_page(request: Request, error: str = ""):
-    return templates.TemplateResponse("register.html", {"request": request, "error": error})
+    return render_template(request, "register.html", error=error)
 
 
 @app.post("/register")
@@ -850,10 +844,7 @@ async def register(
 ):
     existing = db.query(User).filter((User.email == email) | (User.username == username)).first()
     if existing:
-        return templates.TemplateResponse("register.html", {
-            "request": request,
-            "error": "Email or username already registered"
-        }, status_code=400)
+        return render_template(request, "register.html", error="Email or username already registered", status_code=400)
 
     user = User(
         email=email,
@@ -888,12 +879,7 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     plan = PLANS.get(user.plan, PLANS["free"])
     articles_remaining = max(0, plan["articles_per_month"] - user.articles_generated_this_month)
 
-    return templates.TemplateResponse("dashboard.html", {
-        "request": request,
-        "user": user,
-        "plan": plan,
-        "articles_remaining": articles_remaining if user.plan == "free" else "Unlimited"
-    })
+    return render_template(request, "dashboard.html", user=user, plan=plan, articles_remaining=articles_remaining if user.plan == "free" else "Unlimited")
 
 
 @app.get("/generate", response_class=HTMLResponse)
@@ -905,7 +891,7 @@ async def generate_page(request: Request, db: Session = Depends(get_db)):
     if not can_generate_article(user):
         return RedirectResponse(url="/pricing?error=limit_reached", status_code=status.HTTP_302_FOUND)
 
-    return templates.TemplateResponse("generate.html", {"request": request, "user": user})
+    return render_template(request, "generate.html", user=user)
 
 
 @app.post("/generate")
@@ -947,11 +933,7 @@ async def articles_list(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
 
     articles = db.query(Article).filter(Article.user_id == user.id).order_by(Article.created_at.desc()).all()
-    return templates.TemplateResponse("articles.html", {
-        "request": request,
-        "user": user,
-        "articles": articles
-    })
+    return render_template(request, "articles.html", user=user, articles=articles)
 
 
 @app.get("/articles/{article_id}", response_class=HTMLResponse)
@@ -964,11 +946,7 @@ async def article_detail(request: Request, article_id: int, db: Session = Depend
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
 
-    return templates.TemplateResponse("article_detail.html", {
-        "request": request,
-        "user": user,
-        "article": article
-    })
+    return render_template(request, "article_detail.html", user=user, article=article)
 
 
 # ---------------- Lemon Squeezy Payments ----------------
@@ -1102,10 +1080,7 @@ async def payment_success(request: Request, order_id: str = None, db: Session = 
         except Exception:
             pass  # Webhook will handle the update
 
-    return templates.TemplateResponse("success.html", {
-        "request": request,
-        "user": user
-    })
+    return render_template(request, "success.html", user=user)
 
 
 def verify_lemonsqueezy_webhook(payload: bytes, x_signature: str) -> bool:
@@ -1339,16 +1314,7 @@ async def admin_panel(request: Request, db: Session = Depends(get_db)):
     for p in ["free", "creator", "pro"]:
         plan_counts[p] = db.query(User).filter(User.plan == p).count()
 
-    return templates.TemplateResponse("admin.html", {
-        "request": request,
-        "user": user,
-        "total_users": total_users,
-        "total_articles": total_articles,
-        "active_subscriptions": active_subscriptions,
-        "recent_users": recent_users,
-        "recent_articles": recent_articles,
-        "plan_counts": plan_counts
-    })
+    return render_template(request, "admin.html", user=user, total_users=total_users, total_articles=total_articles, active_subscriptions=active_subscriptions, recent_users=recent_users, recent_articles=recent_articles, plan_counts=plan_counts)
 
 
 # ---------------- API Routes (Pro Plan) ----------------
